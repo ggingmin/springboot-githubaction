@@ -2,7 +2,11 @@ plugins {
 	id 'org.springframework.boot' version '2.7.1'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id "com.github.node-gradle.node" version "3.4.0"
+	id 'com.google.cloud.tools.jib' version '3.3.0'
 }
+
+apply plugin: 'com.github.node-gradle.node'
 
 group = 'io.cloudtype'
 version = '0.0.1-SNAPSHOT'
@@ -16,6 +20,7 @@ configurations {
 
 repositories {
 	mavenCentral()
+	gradlePluginPortal()
 }
 
 dependencies {
@@ -27,6 +32,30 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+node {
+	download = true
+	version = "16.16.0"
+	npmVersion = "8.18.0"
+	distBaseUrl = "https://nodejs.org/dist"
+	npmInstallCommand = "install"
+	workDir = file("${project.projectDir}/.gradle/nodejs")
+	npmWorkDir = file("${project.projectDir}/.gradle/npm")
+	nodeProjectDir = file("${project.projectDir}/vue-front")
+	nodeProxySettings = ProxySettings.SMART
+}
+
+task deleteVueBuildFiles(type: Delete) {
+	delete "src/main/resources/static/static", "src/main/resources/static/index.html", "${project.projectDir}/vue-front/node_modules"
+}
+
+task npmBuild(type: NpmTask, dependsOn: ['deleteVueBuildFiles', 'npmInstall']) {
+	args = ["run", "build"]
+}
+
+processResources.dependsOn 'npmBuild'
+
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
