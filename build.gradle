@@ -36,6 +36,14 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+if(project.hasProperty('dev')) {
+	apply from: rootProject.file('profile-dev.gradle');
+} else if(project.hasProperty('prod')) {
+	apply from: rootProject.file('profile-prod.gradle');
+} else {
+	apply from: rootProject.file('profile-local.gradle');
+}
+
 node {
 	download = true
 	version = "16.16.0"
