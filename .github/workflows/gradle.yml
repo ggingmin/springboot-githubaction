@@ -62,4 +62,4 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build with Gradle
-      run: ./gradlew clean build -x test
+      run: ./gradlew -Pdev clean jib -x test
